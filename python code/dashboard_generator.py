@@ -8,6 +8,19 @@ Created on Thu Dec  5 16:38:57 2024
 # dashboard_generator.py
 
 def create_dashboard():
+    """
+    Génère un tableau de bord interactif (dashboard) en HTML pour visualiser les graphiques générés.
+    
+    Le tableau de bord inclut des graphiques interactifs intégrés sous forme d'iframe, qui permettent de visualiser
+    les données analysées. Chaque graphique correspond à une analyse spécifique des données extraites de la base HAL.
+    
+    Returns:
+        str: Chemin d'accès au fichier HTML généré pour le tableau de bord.
+    """
+
+
+
+    #Contenu HTML du tableau de bord
     html_content = """
     <!DOCTYPE html>
     <html lang="fr">

@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Dec  2 16:34:48 2024
 
-
-"""
 
 # mapping.py
-
-# Domaine
 
 domain_mapping = {
      "0.shs": "Sciences humaines et sociales",
@@ -92,6 +86,14 @@ domain_mapping = {
 }
 
 def map_domain(domain):
+    """
+    Mappe un ou plusieurs codes de domaine (provenant de l'API HAL) à leur nom correspondant.
+    Args:
+        domain (str ou list): Code(s) de domaine(s) à mapper.
+    Returns:
+        str: Nom du domaine ou des domaines séparés par des virgules.
+    """
+    
     if isinstance(domain, list):
         return ', '.join([domain_mapping.get(d, "Domaine non défini") for d in domain])
     else:
@@ -104,6 +106,13 @@ def list_domains():
     return domain_mapping
 
 def get_domain_code(domain_name):
+    """
+    Retourne le code correspondant au nom d'un domaine.
+    Args:
+        domain_name (str): Nom du domaine.
+    Returns:
+        str: Code du domaine correspondant ou None si non trouvé.
+    """
     reverse_mapping = {v.lower(): k for k, v in domain_mapping.items()}
     return reverse_mapping.get(domain_name.lower(), None)
 
@@ -143,5 +152,12 @@ def list_types():
     return type_mapping
 
 def get_type_code(type_name):
+    """
+    Retourne le code correspondant au nom d'un type de document.
+    Args:
+        type_name (str): Nom du type de document.
+    Returns:
+        str: Code du type correspondant ou None si non trouvé.
+    """
     reverse_mapping = {v.lower(): k for k, v in type_mapping.items()}
     return reverse_mapping.get(type_name.lower(), None)

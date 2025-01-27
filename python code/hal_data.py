@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Dec  2 16:44:53 2024
-
-
+Auteurs: Anas Nay & Chancella Litoko
 """
 
 import requests
@@ -10,11 +8,32 @@ import pandas as pd
 from unidecode import unidecode
 from mapping import map_doc_type, map_domain, get_domain_code, get_type_code
 
-def clean_name(name):
+def clean_name(name):  # Fonction pour nettoyer les noms (suppression des accents, des espaces et mise en minuscules)
+    """
+    Nettoie un nom en supprimant les caractères non alphanumériques, en le désaccentuant et en le mettant en minuscules.
+    Args:
+        name (str): Le nom à nettoyer.
+    Returns:
+        str: Nom nettoyé.
+    """
     return ''.join(e for e in unidecode(name) if e.isalnum()).lower()
 
-def get_hal_data(nom, prenom, period=None, domain_filter=None, type_filter=None):
-    # Nettoyage des noms
+def get_hal_data(nom, prenom, period=None, domain_filter=None, type_filter=None): # Fonction principale pour extraire les données d'un auteur à partir de l'API HAL
+    """
+    Récupère les publications et les informations d'un auteur à partir de l'API HAL.
+    
+    Args:
+        nom (str): Nom de l'auteur.
+        prenom (str): Prénom de l'auteur.
+        period (str, optional): Période de publication au format "AAAA-AAAA".
+        domain_filter (list, optional): Liste des domaines scientifiques à filtrer.
+        type_filter (list, optional): Liste des types de documents à filtrer.
+    
+    Returns:
+        pandas.DataFrame: Tableau contenant les données extraites des publications.
+    """
+        
+    # Nettoyage des noms pour construire les requetes
     nom_clean = clean_name(nom)
     prenom_clean = clean_name(prenom)
 
@@ -26,7 +45,8 @@ def get_hal_data(nom, prenom, period=None, domain_filter=None, type_filter=None)
     if id_response.status_code == 200:
         id_data = id_response.json()
         documents = id_data.get("response", {}).get("docs", [])
-
+        
+        #Identifier le bon IDHAL en verifiant les correspondances entre le nom/prenom
         for doc in documents:
             if 'authIdHal_s' in doc:
                 for id in doc['authIdHal_s']:
@@ -43,6 +63,7 @@ def get_hal_data(nom, prenom, period=None, domain_filter=None, type_filter=None)
     # Construction de l'URL pour récupérer les publications
     query_url = f"https://api.archives-ouvertes.fr/search/?q=authFullName_t:{prenom_clean}%20{nom_clean}"
 
+    #Ajout un filtre de periode si specifié 
     if period:
         try:
             start_year, end_year = period.split("-")
@@ -50,16 +71,19 @@ def get_hal_data(nom, prenom, period=None, domain_filter=None, type_filter=None)
         except ValueError:
             print("Le format de la période doit être sous la forme AAAA-AAAA.")
             return pd.DataFrame()
-
+    
+    #Ajout filtre de domaine si specifié
     if domain_filter:
         domain_codes = [get_domain_code(d) for d in domain_filter if get_domain_code(d)]
         if domain_codes:
             query_url += f"&fq=domain_s:({' OR '.join(domain_codes)})"
-
+    
+    #Ajout un filtre de type de document si specifié
     if type_filter:
         type_codes = [get_type_code(t) for t in type_filter if get_type_code(t)]
         if type_codes:
             query_url += f"&fq=docType_s:({' OR '.join(type_codes)})"
+    
 
     query_url += "&fl=authIdHal_s,docid,title_s,publicationDateY_i,docType_s,domain_s,keyword_s,labStructName_s&wt=json"
 
@@ -68,7 +92,8 @@ def get_hal_data(nom, prenom, period=None, domain_filter=None, type_filter=None)
     if response.status_code == 200:
         data = response.json()
         publications = data.get("response", {}).get("docs", [])
-
+        
+        #Liste pour stocker les données des publications
         scientist_data = []
 
         for pub in publications:
@@ -90,7 +115,7 @@ def get_hal_data(nom, prenom, period=None, domain_filter=None, type_filter=None)
                     "Laboratoire de Recherche": pub.get("labStructName_s", "Non disponible"),
                 }
             )
-
+        # Retourner les donnees sous forme de Dataframe pandas
         return pd.DataFrame(scientist_data)
     else:
         print(f"Erreur lors de la récupération des données pour {nom} {prenom} : {response.status_code}")

@@ -1,4 +1,4 @@
-import tkinter as tk
+import tkinter as tk #La bibliothèque pour la création de l'interface UI
 from tkinter import filedialog, messagebox, Toplevel, Listbox, MULTIPLE, ttk
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
@@ -7,7 +7,7 @@ import webbrowser
 from hal_data import get_hal_data
 from mapping import list_domains, list_types
 from utils import generate_filename
-from graphics import (
+from graphics import ( #Importer toutes les fonctions utilisés dans graphics.py pour créer les graphiques
     plot_publications_by_year,
     plot_document_types,
     plot_keywords,
@@ -180,6 +180,7 @@ def extraction_data(periode, types, domaines):
             }
             for future in as_completed(futures):
                 if stop_extraction:
+                    executor.shutdown(wait=False)
                     break
                 result = future.result()
                 all_results = pd.concat([all_results, result], ignore_index=True)
@@ -195,7 +196,7 @@ def extraction_data(periode, types, domaines):
             extraction_directory = create_extraction_folder()
             filename = generate_filename(periode, "_".join(domaines) if domaines else None, "_".join(types) if types else None)
             output_path = os.path.join(extraction_directory, filename)
-            all_results.to_csv(output_path, index=False,encoding= "utf-8-sig")
+            all_results.to_csv(output_path, index=False, encoding="utf-8-sig")
             root.after(0, lambda: message_label.config(text="Extraction terminée."))
             root.after(0, lambda: messagebox.showinfo("Extraction terminée", f"Les résultats ont été sauvegardés dans : {output_path}"))
 
@@ -220,7 +221,22 @@ def stop_extraction_task():
     stop_extraction = True
     message_label.config(text="Arrêt de l'extraction en cours...")
     progress_bar.stop()
+
+    # Réinitialiser l'interface utilisateur pour permettre de nouvelles extractions
+    btn_extraire.config(state="normal")
+    btn_filtrer.config(state="normal")
+    btn_charger.config(state="normal")
+
+    # Effacer la barre de progression et le message
+    progress_bar.pack_forget()
+    message_label.pack_forget()
+
+    # Réafficher les boutons d'extraction
+    btn_extraire.pack(pady=5)
+    btn_filtrer.pack(pady=5)
+
     messagebox.showinfo("Interruption", "L'extraction a été interrompue par l'utilisateur.")
+
 
 # Fonctions pour charger un fichier CSV et générer un graphique
 def generate_graphs_thread():
@@ -272,21 +288,21 @@ def generer_rapport():
         format_choisi = choix_format.get()
         nom_fichier_csv = os.path.basename(current_csv_file).replace(".csv", "")
 
+        # Générer le rapport selon le choix
         if format_choisi == "PDF":
-            report_directory = os.path.join(os.path.dirname(__file__), 'rapports')
-            if not os.path.exists(report_directory):
-                os.makedirs(report_directory)
-            output_path = os.path.join(report_directory, f"{nom_fichier_csv}.pdf")
-            generate_pdf_report(output_path, nom_fichier_csv)
-            messagebox.showinfo("Rapport PDF", f"Le rapport PDF a été généré avec succès dans : {output_path}")
+            fichier_pdf = f"{nom_fichier_csv}.pdf"
+            generate_pdf_report(fichier_pdf, nom_fichier_csv)
+            #messagebox.showinfo("Rapport PDF", f"Le rapport PDF '{fichier_pdf}' a été généré avec succès.")
         elif format_choisi == "LaTeX":
-             generate_latex_report(nom_fichier_csv)
-             messagebox.showinfo("Rapport LaTeX", f"Le rapport LaTeX a été généré avec succès.")
+            fichier_latex = f"{nom_fichier_csv}.tex"
+            generate_latex_report(fichier_latex, nom_fichier_csv)
+            #messagebox.showinfo("Rapport LaTeX", f"Le rapport LaTeX '{fichier_latex}' a été généré avec succès.")
         else:
-            messagebox.showerror("Erreur", "Veuillez choisir un format valide.")
+            messagebox.showwarning("Choix invalide", "Veuillez choisir un format.")
+        
+        # Fermer la fenêtre après validation
         rapport_window.destroy()
 
-        
     # Bouton de validation
     btn_valider = tk.Button(rapport_window, text="Valider", command=valider_choix)
     btn_valider.pack(pady=10)

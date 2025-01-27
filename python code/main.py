@@ -6,7 +6,7 @@ import argparse
 from hal_data import get_hal_data
 from utils import generate_filename
 from mapping import list_domains, list_types
-from graphics import (
+from graphics import ( #Importe toutes les graphiques faites dans la partie graphics.py
     plot_publications_by_year,
     plot_document_types,
     plot_keywords,
@@ -19,10 +19,17 @@ from dashboard_generator import create_dashboard
 from report_generator_main import generate_pdf_report, generate_latex_report
 import webbrowser
 import os
-from tqdm import tqdm
+from tqdm import tqdm  # Bibliothèque pour afficher une barre de progression
 
 
-def list_csv_files():
+def list_csv_files(): # Fonction pour lister les fichiers CSV disponibles
+    """
+    Récupère les fichiers CSV disponibles dans le répertoire 'data gdrmacs'.
+    
+    Returns:
+        tuple: Le chemin du répertoire et la liste des fichiers CSV disponibles.
+    """
+
     current_directory = os.path.dirname(os.path.abspath(__file__))
     data_directory = os.path.join(current_directory,"..","data gdrmacs")
     if not os.path.exists(data_directory):
@@ -34,7 +41,13 @@ def list_csv_files():
     return data_directory, csv_files
 
 
-def get_user_selected_csv():
+def get_user_selected_csv(): # Fonction pour permettre à l'utilisateur de choisir un fichier CSV
+    """
+    Affiche les fichiers CSV disponibles et permet à l'utilisateur de sélectionner celui qu'il souhaite utiliser.
+    
+    Returns:
+        str: Chemin du fichier sélectionné.
+    """
     try:
         data_directory, csv_files = list_csv_files()
         print("Fichiers CSV disponibles :")
@@ -54,7 +67,14 @@ def get_user_selected_csv():
         exit(1)
 
 
-def create_extraction_folder():
+def create_extraction_folder(): # Fonction pour créer un dossier d'extraction
+    """
+    Crée un dossier 'extraction' pour sauvegarder les résultats d'extraction.
+    
+    Returns:
+        str: Chemin du dossier d'extraction.
+    """
+
     current_directory = os.path.dirname(os.path.abspath(__file__))
     extraction_directory = os.path.join(current_directory, "extraction")
 
@@ -64,14 +84,30 @@ def create_extraction_folder():
     return extraction_directory
 
 
-def fetch_data(row):
+def fetch_data(row): # Fonction pour effectuer une extraction des données pour une ligne spécifique
+    """
+    Extrait les données HAL pour un scientifique en fonction des filtres spécifiés.
+    
+    Args:
+        row (pandas.Series): Une ligne du DataFrame contenant les informations du scientifique.
+    
+    Returns:
+        pandas.DataFrame: Données extraites pour le scientifique.
+    """
+
+
     return get_hal_data(
         row["nom"], row["prenom"], period=args.year, domain_filter=args.domain, type_filter=args.type
     )
 
 
 def main():
-    # Chargement des données scientifiques
+    """
+    Point d'entrée principal du programme.
+    Permet l'extraction, l'analyse, la visualisation, et la génération de rapports pour les données HAL.
+    """
+
+    
     try:
         csv_file_path = get_user_selected_csv()
         scientists_df = pd.read_csv(csv_file_path, encoding="utf-8-sig")

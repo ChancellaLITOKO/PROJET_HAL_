@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Dec  3 16:36:58 2024
-
-
-"""
 
 import pandas as pd
 import plotly.express as px
@@ -120,7 +115,7 @@ def plot_publications_by_year(filename, output_html="html/pubs_by_year.html", ou
             color_continuous_scale='Viridis'
         )
     
-        # Sauvegarder le graphique
+        # Sauvegarder le graphique en html et png
         fig.write_html(output_html)
         fig.write_image(output_png)
 

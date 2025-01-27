@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jan 16 13:54:40 2025
 
-
-"""
 from fpdf import FPDF
 from datetime import datetime
 import os
@@ -12,12 +8,21 @@ import os
 
 # Fonction de création d'un dossier de nom 'rapports' pour y ranger les rapports générés
 def create_report_folder():
+    """
+    Crée un dossier nommé 'rapports' dans le répertoire courant
+    s'il n'existe pas et retourne le chemin du dossier créé.
+    """
     report_directory = os.path.join(os.getcwd(), "rapports")  
     if not os.path.exists(report_directory):
         os.makedirs(report_directory)
     return report_directory
 
 def generate_pdf_report(nom_fichier_csv):
+    """
+    Génère un rapport au format PDF contenant des informations descriptives et des graphiques.
+    Les graphiques doivent être déjà générés et enregistrés en tant qu'images PNG.
+    
+    """
     report_directory = create_report_folder()
     if nom_fichier_csv.endswith('.csv'):
         nom_fichier_csv = nom_fichier_csv.replace('.csv', '')
@@ -74,6 +79,11 @@ def generate_pdf_report(nom_fichier_csv):
     print(f"Rapport PDF généré avec succès dans : {output_path}")
 
 def generate_latex_report(nom_fichier_csv):
+
+    """
+    Génère un rapport au format LaTeX contenant des descriptions et des graphiques.
+    Les graphiques doivent être déjà générés et enregistrés en tant qu'images PNG.
+    """
     report_directory = create_report_folder()
     if nom_fichier_csv.endswith('.csv'):
         nom_fichier_csv = nom_fichier_csv.replace('.csv', '')

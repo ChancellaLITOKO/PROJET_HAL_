@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jan 16 13:58:36 2025
 
-
-"""
 import os
 from fpdf import FPDF
 from datetime import datetime
@@ -22,9 +18,11 @@ def create_report_folder():
 
     return report_directory
 
+# Fonction pour créer un rapport PDF 
 def generate_pdf_report(output_path, nom_fichier_csv):
     report_directory = create_report_folder()
     output_path = os.path.join(report_directory, f"{nom_fichier_csv}.pdf")
+    output_path = os.path.normpath(output_path)  # Normaliser le chemin
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=12)
@@ -68,39 +66,20 @@ def generate_pdf_report(output_path, nom_fichier_csv):
 
     # Sauvegarde finale
     pdf.output(output_path)
+    
+# Fonction pour créer un rapport Latex
 
-
-def generate_latex_report(nom_fichier_csv):
-    report_directory = create_report_folder()
-    if nom_fichier_csv.endswith('.csv'):
-        nom_fichier_csv = nom_fichier_csv.replace('.csv', '')
-    output_path = os.path.join(report_directory, f"{nom_fichier_csv}.tex")
-
-    # Définir les chemins des images
-    image_paths = [
-        "png/pubs_by_year.png",
-        "png/type_distribution.png",
-        "png/keywords_distribution.png",
-        "png/domain_distribution.png",
-        "png/top_authors.png",
-        "png/structures_stacked.png",
-        "png/publication_trends.png"
-    ]
-
-    # Vérifier que toutes les images existent
-    for img in image_paths:
-        if not os.path.exists(img):
-            raise FileNotFoundError(f"Image introuvable : {img}. Assurez-vous qu'elle a été générée correctement.")
-
-    # Adapter les chemins des images pour le fichier LaTeX
-    relative_image_paths = [os.path.relpath(img, start=report_directory) for img in image_paths]
-
+def generate_latex_report(output_path, nom_fichier_csv):
     current_date = datetime.now().strftime("%d %B %Y")
+    
+    report_directory = create_report_folder()
+    output_path = os.path.join(report_directory, f"{nom_fichier_csv}.tex")
+    output_path = os.path.normpath(output_path)  # Normaliser le chemin
+    
     content = rf"""
     \documentclass{{article}}
     \usepackage[utf8]{{inputenc}}
     \usepackage{{graphicx}}
-    \usepackage[a4paper, margin=1in]{{geometry}}
     \title{{Rapport des Publications HAL - {nom_fichier_csv}}}
     \date{{Créé le {current_date}}}
     \begin{{document}}
@@ -108,44 +87,44 @@ def generate_latex_report(nom_fichier_csv):
     \maketitle
 
     \begin{{center}}
-    \textit{{Source des données: {nom_fichier_csv}.csv}}
-    \end{{center}}
+    Source des données: {nom_fichier_csv}.csv\\
     \vspace{{1cm}}
-
     Ce document contient une analyse graphique des données extraites, incluant des informations sur les publications, les types de documents, les mots-clés les plus fréquents, les domaines, les auteurs prolifiques, et les tendances des publications par année.
-    \vspace{{1cm}}
+    \end{{center}}
+
+    \newpage
 
     \section*{{Graphiques}}
 
     \subsection*{{1. Nombre de publications par année}}
-    \includegraphics[width=\textwidth]{{{relative_image_paths[0]}}}
+    \includegraphics[width=\textwidth]{{png/pubs_by_year.png}}
     \newpage
 
     \subsection*{{2. Répartition des types de documents}}
-    \includegraphics[width=\textwidth]{{{relative_image_paths[1]}}}
+    \includegraphics[width=\textwidth]{{png/type_distribution.png}}
     \newpage
 
     \subsection*{{3. Top 10 des mots-clés les plus fréquents}}
-    \includegraphics[width=\textwidth]{{{relative_image_paths[2]}}}
+    \includegraphics[width=\textwidth]{{png/keywords_distribution.png}}
     \newpage
 
     \subsection*{{4. Top 10 des domaines les plus fréquents}}
-    \includegraphics[width=\textwidth]{{{relative_image_paths[3]}}}
+    \includegraphics[width=\textwidth]{{png/domain_distribution.png}}
     \newpage
 
     \subsection*{{5. Top 10 des auteurs les plus prolifiques}}
-    \includegraphics[width=\textwidth]{{{relative_image_paths[4]}}}
+    \includegraphics[width=\textwidth]{{png/top_authors.png}}
     \newpage
 
     \subsection*{{6. Publications par structure et par année}}
-    \includegraphics[width=\textwidth]{{{relative_image_paths[5]}}}
+    \includegraphics[width=\textwidth]{{png/structures_stacked.png}}
     \newpage
 
     \subsection*{{7. Tendances des publications par année}}
-    \includegraphics[width=\textwidth]{{{relative_image_paths[6]}}}
+    \includegraphics[width=\textwidth]{{png/publication_trends.png}}
 
     \end{{document}}
     """
+    # Sauvegarde du fichier LaTeX
     with open(output_path, "w", encoding="utf-8") as file:
         file.write(content)
-    print(f"Rapport LaTeX généré avec succès dans : {output_path}")
