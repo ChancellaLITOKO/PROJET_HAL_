@@ -41,7 +41,7 @@ def charger_csv():
     if fichier_csv:
         try:
             global scientists_df, fichier_charge
-            scientists_df = pd.read_csv(fichier_csv)
+            scientists_df = pd.read_csv(fichier_csv, encoding="utf-8-sig")
             fichier_charge = True
             messagebox.showinfo("Succès", f"Fichier chargé : {fichier_csv}")
             afficher_boutons_options()
@@ -195,7 +195,7 @@ def extraction_data(periode, types, domaines):
             extraction_directory = create_extraction_folder()
             filename = generate_filename(periode, "_".join(domaines) if domaines else None, "_".join(types) if types else None)
             output_path = os.path.join(extraction_directory, filename)
-            all_results.to_csv(output_path, index=False)
+            all_results.to_csv(output_path, index=False,encoding= "utf-8-sig")
             root.after(0, lambda: message_label.config(text="Extraction terminée."))
             root.after(0, lambda: messagebox.showinfo("Extraction terminée", f"Les résultats ont été sauvegardés dans : {output_path}"))
 

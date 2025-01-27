@@ -74,7 +74,7 @@ def main():
     # Chargement des données scientifiques
     try:
         csv_file_path = get_user_selected_csv()
-        scientists_df = pd.read_csv(csv_file_path)
+        scientists_df = pd.read_csv(csv_file_path, encoding="utf-8-sig")
     except FileNotFoundError as e:
         print(e)
         exit(1)
@@ -150,7 +150,7 @@ def main():
     extraction_directory = create_extraction_folder()
     filename = generate_filename(args.year, args.domain, args.type)
     output_path = os.path.join(extraction_directory, filename)
-    all_results.to_csv(output_path, index=False)
+    all_results.to_csv(output_path, index=False, encoding="utf-8-sig")
     print(f"Extraction terminée. Les résultats ont été enregistrés dans : {output_path}")
 
     # Affichage des graphiques
